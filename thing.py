@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 
 import math, random
+import copy
 
 def circle(r, n):
     return [(r*math.cos(6.28*x/n), r*math.sin(6.28*x/n)) for x in range(n)]
@@ -20,9 +21,10 @@ class Thing():
     size = 10
     layer = 0
 
-    def __init__(self, pos, things):
+    def __init__(self, pos, things, fixed=False):
         self.moving = False
         self.things = things
+        self.fixed = fixed
         if pos == None:
             self.pos = (0,0)
         else:
@@ -36,6 +38,10 @@ class Thing():
 
     def event(self, event):
         if event.type == MOUSEBUTTONDOWN and event.button == 1:
+            if self.fixed:
+                temp = copy.copy(self)
+                self.things.append(temp)
+                self.fixed = False
             if self.get_hit(event.pos):
                 self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
                 self.moving = True
@@ -66,8 +72,8 @@ class Token(Thing):
 
     layer = 10
 
-    def __init__(self, things, pos = None, color = 0):
-        Thing.__init__(self, pos, things)
+    def __init__(self, things, pos = None, color = 0, fixed = False):
+        Thing.__init__(self, pos, things, fixed)
         self.color = color 
 
     def draw(self, screen):
@@ -97,8 +103,8 @@ class Part(Thing):
     size = 20
     grid = size*2+2
 
-    def __init__(self, things, pos = None, t = 0, q= 2):
-        Thing.__init__(self, pos, things)
+    def __init__(self, things, pos = None, t = 0, q= 2, fixed=False):
+        Thing.__init__(self, pos, things, fixed)
         self.type = t
         self.quality = q
         self.snap()
@@ -163,11 +169,13 @@ class Cup(Thing):
         self.size = 60
         self.roll = False
         self.color = (192,192,192)
+        self.kinds = [Part]
 
     def add(self, thing):
-        if isinstance(thing, Part):      
-            self.stuff.append(thing)
-            return True
+        for k in self.kinds:
+            if isinstance(thing, k) and not thing.fixed:      
+                self.stuff.append(thing)
+                return True
         return False
 
     def do_roll(self):

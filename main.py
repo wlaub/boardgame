@@ -23,8 +23,9 @@ things = []
 cup = thing.Cup(things, center)
 things.append(cup)
 
-trash = thing.Cup(things, (100,100))
+trash = thing.Cup(things, (100,150))
 trash.color = (255,0,0)
+trash.kinds.append(thing.Token)
 things.append(trash)
 
 for i, t in enumerate(start):
@@ -32,8 +33,13 @@ for i, t in enumerate(start):
     cup.add(temp)
 
 for i in range(len(thing.Token.colors)):
-    temp = thing.Token(things, (16+i*16, size[1]-16), i)
+    temp = thing.Token(things, (32+i*16, 12), i, True)
     things.append(temp)
+
+for i in range(len(thing.Part.colors)):
+    temp = thing.Part(things, (22+i*42, 50), i, fixed = True)
+    things.append(temp)
+
 
 while 1:
 
