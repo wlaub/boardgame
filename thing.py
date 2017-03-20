@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 
+from game import object as gobj
 import math, random
 import copy
 
@@ -70,7 +71,7 @@ class Thing():
         pass
 
 
-class Token(Thing):
+class Token(gobj.Movable):
 
     colors =[ (255,0,0)
             , (0,255,0)
@@ -84,8 +85,8 @@ class Token(Thing):
 
     layer = 10
 
-    def __init__(self, things, pos = None, color = 0, fixed = False):
-        Thing.__init__(self, pos, things, fixed)
+    def __init__(self, pos = None, fixed = False, color = (0,0,0)):
+        gobj.Movable.__init__(self, pos, fixed)
         self.color = color 
 
     def draw(self, screen):

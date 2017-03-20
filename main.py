@@ -34,7 +34,7 @@ for i, t in enumerate(start):
     cup.add(temp)
 
 for i in range(len(thing.Token.colors)):
-    temp = thing.Token(things, (32+i*16, 12), i, True)
+    temp = thing.Token((32+i*16, 12), i, True)
     things.append(temp)
 
 for i in range(len(thing.Part.colors)):
