@@ -85,8 +85,8 @@ class Token(gobj.Movable):
 
     layer = 10
 
-    def __init__(self, pos = None, fixed = False, color = (0,0,0)):
-        gobj.Movable.__init__(self, pos, fixed)
+    def __init__(self, things, pos = None, fixed = False, color = 0):
+        gobj.Movable.__init__(self, things, pos, fixed)
         self.color = color 
 
     def draw(self, screen):
@@ -95,7 +95,7 @@ class Token(gobj.Movable):
             ) 
 
 
-class Part(Thing):
+class Part(gobj.Rollable):
     """
     Movable part class with type and quality
     """
@@ -111,18 +111,15 @@ class Part(Thing):
             , 4: (0,0,0)        #weapon
             , 5: (255,255,0)    #shield
             }
-    tmap = [0,1,1,1,1,2]
+    valmap = {0:0, 1:4, 2:1}
 
     size = 20
     grid = size*2+2
 
-    def __init__(self, things, pos = None, t = 0, q= 2, fixed=False):
-        Thing.__init__(self, pos, things, fixed)
+    def __init__(self, things, pos = None, fixed=False, t = 0, q = 2):
+        gobj.Rollable.__init__(self, things, pos, fixed)
         self.type = t
-        self.quality = q
 
-    def roll(self):
-        self.quality = self.tmap[random.randint(0,5)]
 
     def snap(self):
         x = snap(self.pos[0], self.grid)
@@ -130,21 +127,15 @@ class Part(Thing):
         self.pos = (x,y)
 
     def right_click(self, event):
-        self.quality += 1
-        if self.quality > 2: self.quality = 0
+        self.val += 1
+        if self.val > 2: self.val = 0
         return True
-
-    def event(self, event):
-        if Thing.event(self,event):
-            return True
-     
-        return False
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.colors[self.type]
             , (self.pos[0]-self.size, self.pos[1] - self.size, self.size*2, self.size*2)
             )
-        for x,y in circle(self.size/2., self.quality+1):
+        for x,y in circle(self.size/2., self.val+1):
             pygame.draw.circle(screen, (255,255,255)
             , (self.pos[0] - int(y), self.pos[1] + int(x))
             , 4)

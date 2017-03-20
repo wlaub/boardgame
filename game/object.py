@@ -23,7 +23,8 @@ class Movable():
     size = 10
     layer = 0
 
-    def __init__(self, pos, fixed=False):
+    def __init__(self, things, pos, fixed=False):
+        self.things = things
         self.moving = False
         self.fixed = fixed
         if pos == None:
@@ -91,8 +92,8 @@ class Rollable(Movable):
     layer = 1
     size=20
 
-    def __init__(self, pos=None, fixed=False, val=None):
-        Movable.__init__(self, pos, fixed)
+    def __init__(self, things, pos=None, fixed=False, val=None):
+        Movable.__init__(self, things, pos, fixed)
         self.generate_values()
         if val != None:
             self.val = val

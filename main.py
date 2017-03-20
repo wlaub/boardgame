@@ -30,19 +30,19 @@ trash.kinds.append(thing.Token)
 things.append(trash)
 
 for i, t in enumerate(start):
-    temp = thing.Part(things,(center[0] + i*40, center[1]), t)
+    temp = thing.Part(things,(center[0] + i*40, center[1]), False, t)
     cup.add(temp)
 
 for i in range(len(thing.Token.colors)):
-    temp = thing.Token((32+i*16, 12), i, True)
+    temp = thing.Token(things, (32+i*16, 12), True, i)
     things.append(temp)
 
 for i in range(len(thing.Part.colors)):
-    temp = thing.Part(things, (22+i*42, 50), i, fixed = True)
+    temp = thing.Part(things, (22+i*42, 50), True, i, 2)
     things.append(temp)
 
 
-temp = game.object.Rollable(center)
+temp = game.object.Rollable(things, center)
 things.append(temp)
 
 while 1:
