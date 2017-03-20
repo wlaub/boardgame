@@ -4,6 +4,7 @@ import sys, time, math
 import pickle
 
 import thing
+import game.object
 
 pygame.init()
 pygame.font.init()
@@ -40,6 +41,9 @@ for i in range(len(thing.Part.colors)):
     temp = thing.Part(things, (22+i*42, 50), i, fixed = True)
     things.append(temp)
 
+
+temp = game.object.Rollable(center)
+things.append(temp)
 
 while 1:
 
