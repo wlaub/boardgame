@@ -29,6 +29,7 @@ class Thing():
             self.pos = (0,0)
         else:
             self.pos = pos
+        self.clicks = [self.left_click, self.middle_click, self.right_click]
 
     def get_hit(self, loc):
         for i in range(len(loc)):
@@ -36,16 +37,27 @@ class Thing():
                 return False
         return True
 
+    def left_click(self, event):
+        if self.fixed:
+            temp = copy.copy(self)
+            self.things.append(temp)
+            self.fixed = False
+        self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
+        self.moving = True
+        return True
+
+    def middle_click(self, event):
+        self.roll()
+        return True    
+ 
+    def right_click(self, event):
+        return False
+
     def event(self, event):
-        if event.type == MOUSEBUTTONDOWN and event.button == 1:
-            if self.fixed:
-                temp = copy.copy(self)
-                self.things.append(temp)
-                self.fixed = False
+        if event.type == MOUSEBUTTONDOWN:
             if self.get_hit(event.pos):
-                self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
-                self.moving = True
-                return True
+                if self.clicks[event.button-1](event):
+                    return True
         elif event.type == MOUSEBUTTONUP and event.button == 1:
             self.moving = False
 
@@ -107,7 +119,6 @@ class Part(Thing):
         Thing.__init__(self, pos, things, fixed)
         self.type = t
         self.quality = q
-        self.snap()
 
     def roll(self):
         self.quality = self.tmap[random.randint(0,5)]
@@ -117,17 +128,14 @@ class Part(Thing):
         y = snap(self.pos[1], self.grid)
         self.pos = (x,y)
 
- 
+    def right_click(self, event):
+        self.quality += 1
+        if self.quality > 2: self.quality = 0
+        return True
+
     def event(self, event):
         if Thing.event(self,event):
             return True
-        if event.type == MOUSEBUTTONDOWN and event.button == 3:
-            if self.get_hit(event.pos):
-                self.quality += 1
-                if self.quality > 2: self.quality = 0
-                return True
-        elif event.type == MOUSEBUTTONUP and event.button == 1:
-            self.snap()
      
         return False
 
@@ -167,7 +175,6 @@ class Cup(Thing):
         Thing.__init__(self,pos, things)
         self.stuff = []
         self.size = 60
-        self.roll = False
         self.color = (192,192,192)
         self.kinds = [Part]
 
@@ -178,25 +185,19 @@ class Cup(Thing):
                 return True
         return False
 
-    def do_roll(self):
+    def roll(self):
         for i, t in enumerate(self.stuff):
             off = wrap(i,4)
             off = [off[0]*t.grid + self.size+t.size*2, off[1]*t.grid - self.size+t.size]
             t.pos = (self.pos[0]+off[0], self.pos[1]+off[1])
-            t.snap()
             t.roll()
         self.things.extend(self.stuff)
         self.stuff = []
-        self.roll = False
 
     def event(self, event):
         if Thing.event(self,event):
             return True
-        if event.type == MOUSEBUTTONDOWN and event.button == 3:
-            if self.get_hit(event.pos):
-                self.roll = True
-                return True    
- 
+
         return False
 
 

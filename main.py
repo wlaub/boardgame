@@ -58,9 +58,7 @@ while 1:
                 pass
             elif event.type == KEYDOWN:
                 if event.key >= K_1 and event.key <= K_9:
-                    temp = thing.Part(things, mpos, event.key-K_1)
-                    things.append(temp)
-                
+                    pass
 
     for t in things:
         t.update()
@@ -71,9 +69,6 @@ while 1:
             if trash.add(t):
                 trash.stuff = []
                 things.remove(t)
-
-    if cup.roll:
-        cup.do_roll()
 
     things.sort(key=lambda x: x.layer)
 
