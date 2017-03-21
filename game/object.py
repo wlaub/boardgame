@@ -3,6 +3,7 @@ from pygame.locals import *
 
 import math, random
 import copy
+import handler
 
 def circle(r, n):
     return [(r*math.cos(6.28*x/n), r*math.sin(6.28*x/n)) for x in range(n)]
@@ -23,8 +24,8 @@ class Movable():
     size = 10
     layer = 0
 
-    def __init__(self, things, pos, fixed=False):
-        self.things = things
+    def __init__(self, handler, pos, fixed=False):
+        self.handler = handler
         self.moving = False
         self.fixed = fixed
         if pos == None:
@@ -48,7 +49,7 @@ class Movable():
     def left_click(self, event):
         if self.fixed:
             temp = copy.copy(self)
-            self.things.append(temp)
+            self.handler.things.append(temp)
             self.fixed = False
         self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
         self.moving = True
@@ -92,8 +93,8 @@ class Rollable(Movable):
     layer = 1
     size=20
 
-    def __init__(self, things, pos=None, fixed=False, val=None):
-        Movable.__init__(self, things, pos, fixed)
+    def __init__(self, handler, pos=None, fixed=False, val=None):
+        Movable.__init__(self, handler, pos, fixed)
         self.generate_values()
         if val != None:
             self.val = val
@@ -105,6 +106,9 @@ class Rollable(Movable):
             self.values = []
             for x, q in self.valmap.iteritems():
                 self.values.extend([x]*q)
+
+    def update(self):
+        Movable.update(self)
 
     def roll(self):
         self.val = random.sample(self.values,1)[0]   

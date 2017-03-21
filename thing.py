@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 
 from game import object as gobj
+from game import handler as handler
 import math, random
 import copy
 
@@ -14,62 +15,6 @@ def wrap(i, w):
 
 def snap(val, grid):
     return int(round((float(val)/grid)))*grid
-
-class Thing():
-    """
-    A movable thing
-    """
-    size = 10
-    layer = 0
-
-    def __init__(self, pos, things, fixed=False):
-        self.moving = False
-        self.things = things
-        self.fixed = fixed
-        if pos == None:
-            self.pos = (0,0)
-        else:
-            self.pos = pos
-        self.clicks = [self.left_click, self.middle_click, self.right_click]
-
-    def get_hit(self, loc):
-        for i in range(len(loc)):
-            if abs(self.pos[i] - loc[i]) > self.size:
-                return False
-        return True
-
-    def left_click(self, event):
-        if self.fixed:
-            temp = copy.copy(self)
-            self.things.append(temp)
-            self.fixed = False
-        self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
-        self.moving = True
-        return True
-
-    def middle_click(self, event):
-        self.roll()
-        return True    
- 
-    def right_click(self, event):
-        return False
-
-    def event(self, event):
-        if event.type == MOUSEBUTTONDOWN:
-            if self.get_hit(event.pos):
-                if self.clicks[event.button-1](event):
-                    return True
-        elif event.type == MOUSEBUTTONUP and event.button == 1:
-            self.moving = False
-
-        return False
-
-    def update(self):
-        if self.moving:
-            mpos = pygame.mouse.get_pos()
-            self.pos = (mpos[0] + self.offset[0], mpos[1]+ self.offset[1])
-        pass
-
 
 class Token(gobj.Movable):
 
@@ -85,8 +30,8 @@ class Token(gobj.Movable):
 
     layer = 10
 
-    def __init__(self, things, pos = None, fixed = False, color = 0):
-        gobj.Movable.__init__(self, things, pos, fixed)
+    def __init__(self, handler, pos = None, fixed = False, color = 0):
+        gobj.Movable.__init__(self, handler, pos, fixed)
         self.color = color 
 
     def draw(self, screen):
@@ -116,8 +61,8 @@ class Part(gobj.Rollable):
     size = 20
     grid = size*2+2
 
-    def __init__(self, things, pos = None, fixed=False, t = 0, q = 2):
-        gobj.Rollable.__init__(self, things, pos, fixed)
+    def __init__(self, handler, pos = None, fixed=False, t = 0, q = 2):
+        gobj.Rollable.__init__(self, handler, pos, fixed)
         self.type = t
 
 
@@ -159,12 +104,12 @@ class Part(gobj.Rollable):
             pygame.draw.line(screen, (0,0,0), start, end, 2)
 
 
-class Cup(Thing):
+class Cup(gobj.Rollable):
    
     layer = 1
  
-    def __init__(self, things, pos = None):
-        Thing.__init__(self,pos, things)
+    def __init__(self, handler, pos = None):
+        gobj.Rollable.__init__(self, handler, pos, val=0)
         self.stuff = []
         self.size = 60
         self.color = (192,192,192)
@@ -183,15 +128,15 @@ class Cup(Thing):
             off = [off[0]*t.grid + self.size+t.size*2, off[1]*t.grid - self.size+t.size]
             t.pos = (self.pos[0]+off[0], self.pos[1]+off[1])
             t.roll()
-        self.things.extend(self.stuff)
+        self.handler.things.extend(self.stuff)
         self.stuff = []
 
-    def event(self, event):
-        if Thing.event(self,event):
-            return True
-
-        return False
-
+    def update(self):
+        gobj.Rollable.update(self)
+        for t in self.handler.things:
+             if not t.moving and self.get_hit(t.pos):
+                if self.add(t):
+                    self.handler.things.remove(t)
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.color

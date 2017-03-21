@@ -5,84 +5,50 @@ import pickle
 
 import thing
 import game.object
+import game.handler
 
-pygame.init()
-pygame.font.init()
-font = pygame.font.SysFont(pygame.font.get_default_font(), 18)
+class App(game.handler.Handler):
 
-size = (1000,600)
-center = (size[0]/2, size[1]/2)
-screen = pygame.display.set_mode(size)
+    def __init__(self):
+        game.handler.Handler.__init__(self, (1000,600))
 
-gs = thing.Part.grid*7+40
-gpos = (size[0] - gs, size[1]-gs)
+        self.gs = thing.Part.grid*7+40
+        self.gpos = (self.size[0] - self.gs, self.size[1]-self.gs)
 
-start = [0,0,0,1,2,4,5]
+        start = [0,0,0,1,2,4,5]
 
-things = []
+        self.cup = thing.Cup(self, self.center)
+        self.things.append(self.cup)
 
-cup = thing.Cup(things, center)
-things.append(cup)
+        self.trash = thing.Cup(self, (100,150))
+        self.trash.color = (255,0,0)
+        self.trash.kinds.append(thing.Token)
+        self.things.append(self.trash)
 
-trash = thing.Cup(things, (100,150))
-trash.color = (255,0,0)
-trash.kinds.append(thing.Token)
-things.append(trash)
+        for i, t in enumerate(start):
+            temp = thing.Part(self, (self.center[0] + i*40, self.center[1]), False, t)
+            self.cup.add(temp)
 
-for i, t in enumerate(start):
-    temp = thing.Part(things,(center[0] + i*40, center[1]), False, t)
-    cup.add(temp)
+        for i in range(len(thing.Token.colors)):
+            temp = thing.Token(self, (32+i*16, 12), True, i)
+            self.things.append(temp)
 
-for i in range(len(thing.Token.colors)):
-    temp = thing.Token(things, (32+i*16, 12), True, i)
-    things.append(temp)
-
-for i in range(len(thing.Part.colors)):
-    temp = thing.Part(things, (22+i*42, 50), True, i, 2)
-    things.append(temp)
+        for i in range(len(thing.Part.colors)):
+            temp = thing.Part(self, (22+i*42, 50), True, i, 2)
+            self.things.append(temp)
 
 
-temp = game.object.Rollable(things, center)
-things.append(temp)
+        temp = game.object.Rollable(self, self.center)
+        self.things.append(temp)
 
-while 1:
+    def update(self):
+        self.trash.stuff = []
 
-    time.sleep(.01)
-    mpos = pygame.mouse.get_pos()
-    for event in pygame.event.get():
-        caught= False
-        for t in things[::-1]:
-            if t.event(event):
-                caught=True
-                break
-        if not caught:
-            if event.type == pygame.QUIT:
-                exit()
-            elif event.type == MOUSEBUTTONDOWN:
-                pass
-            elif event.type == KEYDOWN:
-                if event.key >= K_1 and event.key <= K_9:
-                    pass
+    def draw_pre(self):
+        thing.Part.draw_grid(self.screen, self.gpos)
 
-    for t in things:
-        t.update()
-        if not t.moving and cup.get_hit(t.pos):
-            if cup.add(t):
-                things.remove(t)
-        if not t.moving and trash.get_hit(t.pos):
-            if trash.add(t):
-                trash.stuff = []
-                things.remove(t)
+app = App()
 
-    things.sort(key=lambda x: x.layer)
+app.run()
 
-    screen.fill((255,255,255))
-
-    thing.Part.draw_grid(screen, gpos)
-
-    for t in things:
-        t.draw(screen)
-
-    pygame.display.flip()
-    
 
