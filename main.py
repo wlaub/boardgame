@@ -12,8 +12,6 @@ class App(game.handler.Handler):
     def __init__(self):
         game.handler.Handler.__init__(self, (1000,600))
 
-        self.gs = thing.Part.grid*7+40
-        self.gpos = (self.size[0] - self.gs, self.size[1]-self.gs)
 
         start = [0,0,0,1,2,4,5]
 
@@ -46,7 +44,7 @@ class App(game.handler.Handler):
         self.trash.stuff = []
 
     def draw_pre(self):
-        thing.Part.draw_grid(self.screen, self.gpos)
+        pass
 
 app = App()
 

@@ -154,7 +154,7 @@ class Grid():
         """
         for x in range(xmin, xmax+1):
             for y in range(ymin, ymax+1):
-                self.locations.append((x*size, y*size))
+                self.locations.append((x*size+1, y*size+1))
 
 
     def add(self, thing, pos):

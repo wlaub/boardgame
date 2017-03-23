@@ -89,19 +89,6 @@ class Part(gobj.Rollable):
             , (pos[0]-self.size, pos[1] - size, size*2, size*2)
             )
 
-    @classmethod
-    def draw_grid(cls, screen, pos):
-        size = 7
-        pos = (snap(pos[0], cls.grid)+cls.grid/2-1, snap(pos[1], cls.grid)+cls.grid/2-1)
-        for x in range(size+1):
-            x = x
-            start = (pos[0]+cls.grid*x, pos[1])
-            end = (pos[0]+cls.grid*x, pos[1]+cls.grid*size)
-            pygame.draw.line(screen, (0,0,0), start, end, 2)
-            start = (pos[0], pos[1]+cls.grid*x)
-            end = (pos[0]+cls.grid*size, pos[1]+cls.grid*x)
-            pygame.draw.line(screen, (0,0,0), start, end, 2)
-
 
 class Cup(gobj.Rollable):
    
@@ -161,24 +148,27 @@ class Cup(gobj.Rollable):
 
 
 class PlayerBoard(gobj.Board):
+
+    layer = 0
     
     def __init__(self, handler, pos=None, fixed=False):
         gobj.Board.__init__(self, handler, pos, fixed)
+        self.gsize = Part.size*2+2
         tg = gobj.Grid(self.pos)
-        tg.make_grid(-3, 3, -3, 3, Part.size*2)
+        tg.make_grid(-3, 3, -3, 3, self.gsize)
         tg.kinds.append(Part)
         self.grids.append(tg)
-        self.size = Part.size*7
-        self.gsize = Part.size*2
+        self.size = self.gsize*3.5
 
     def draw(self, screen):
-        for x in range(-3,4):
-            x = x
-            start = (self.pos[0]+self.gsize*x, self.pos[1]-self.gsize*3)
-            end = (self.pos[0]+self.gsize*x, self.pos[1]+self.gsize*4)
+        off = (-self.gsize/2, -self.gsize/2)
+        for x in range(-3,5):
+            x = x-.5
+            start = gobj.add(self.pos, (self.gsize*x, -self.gsize*3.5))
+            end =   gobj.add(self.pos, (self.gsize*x, self.gsize*3.5))
             pygame.draw.line(screen, (0,0,0), start, end, 2)
-            start = (self.pos[0]-self.gsize*3, self.pos[1]+self.gsize*x)
-            end = (self.pos[0]+self.gsize*4, self.pos[1]+self.gsize*x)
+            start = (self.pos[0]-self.gsize*3.5, self.pos[1]+self.gsize*x)
+            end = (self.pos[0]+self.gsize*3.5, self.pos[1]+self.gsize*x)
             pygame.draw.line(screen, (0,0,0), start, end, 2)
 
 
