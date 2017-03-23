@@ -4,6 +4,7 @@ from pygame.locals import *
 import math, random
 import copy
 import handler
+import time
 
 def circle(r, n):
     return [(r*math.cos(6.28*x/n), r*math.sin(6.28*x/n)) for x in range(n)]
@@ -31,6 +32,7 @@ class Movable():
     layer = 0
 
     def __init__(self, handler, pos, fixed=False):
+        self.changed = 0
         self.handler = handler
         self.moving = False
         self.fixed = fixed
@@ -39,6 +41,9 @@ class Movable():
         else:
             self.pos = pos
         self.clicks = [self.left_click, self.middle_click, self.right_click]
+
+    def sort(self):
+        return (self.layer, self.changed)
 
     def get_move_hit(self, loc):
         for i in range(len(loc)):
@@ -59,6 +64,7 @@ class Movable():
             self.fixed = False
         self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
         self.moving = True
+        self.changed = time.time()
         return True
 
     def middle_click(self, event):
@@ -160,6 +166,7 @@ class Grid():
     def add(self, thing, pos):
         if not thing.__class__ in self.kinds: return False
         if thing.fixed: return False
+        #TODO: remove function and board space exclusion
         best = None
         bdist = self.range
         for l in self.locations:

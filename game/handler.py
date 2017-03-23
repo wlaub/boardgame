@@ -55,7 +55,7 @@ class Handler():
 
             self.update()
 
-            self.things.sort(key=lambda x: x.layer)
+            self.things.sort(key=lambda x: x.sort())
 
             self.screen.fill(self.bgcolor)
 
