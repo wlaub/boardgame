@@ -154,22 +154,24 @@ class PlayerBoard(gobj.Board):
     def __init__(self, handler, pos=None, fixed=False):
         gobj.Board.__init__(self, handler, pos, fixed)
         self.gsize = Part.size*2+2
-        tg = gobj.Grid(self.pos)
+        tg = gobj.Grid((0,32))
         tg.make_grid(-3, 3, -3, 3, self.gsize)
         tg.kinds.append(Part)
         self.grids.append(tg)
-        self.size = self.gsize*3.5
+
+        #TODO: Lock coupling is happening again...
+
+        self.size = self.gsize*3.5+40
+        
+        tg = gobj.Grid((0, -int(self.size)+20))
+        tg.locations = [(20*x, 0) for x in range(-5,6)]
+        tg.kinds.append(Token)
+        self.grids.append(tg)
+
 
     def draw(self, screen):
-        off = (-self.gsize/2, -self.gsize/2)
-        for x in range(-3,5):
-            x = x-.5
-            start = gobj.add(self.pos, (self.gsize*x, -self.gsize*3.5))
-            end =   gobj.add(self.pos, (self.gsize*x, self.gsize*3.5))
-            pygame.draw.line(screen, (0,0,0), start, end, 2)
-            start = (self.pos[0]-self.gsize*3.5, self.pos[1]+self.gsize*x)
-            end = (self.pos[0]+self.gsize*3.5, self.pos[1]+self.gsize*x)
-            pygame.draw.line(screen, (0,0,0), start, end, 2)
-
+        gobj.Board.draw(self, screen)
+        rect = (self.pos[0]-self.size, self.pos[1]-self.size, self.size*2, self.size*2)
+        pygame.draw.rect(screen, (0,0,0), rect, 2)
 
 

@@ -144,10 +144,10 @@ class Grid():
     A thing that snaps kinds of objects to a set of locations
     """
 
-    kinds = []
-    locations = []
 
     def __init__(self, pos = None, r = 9999999):
+        self.kinds = []
+        self.locations = []
         if pos != None:
             self.pos = pos
         else:
@@ -161,11 +161,16 @@ class Grid():
         for x in range(xmin, xmax+1):
             for y in range(ymin, ymax+1):
                 self.locations.append((x*size+1, y*size+1))
+        self.gsize = size
+        self.range = ((xmin, xmax+2),(ymin,ymax+2))
+        self.draw = self.draw_grid
 
+    #TODO make grids have their own hitbox
 
     def add(self, thing, pos):
         if not thing.__class__ in self.kinds: return False
         if thing.fixed: return False
+        pos = add(self.pos, pos)
         #TODO: remove function and board space exclusion
         best = None
         bdist = self.range
@@ -179,6 +184,27 @@ class Grid():
             thing.pos = tuple(best)
             return True
         return False
+
+    def draw(self, screen, pos):
+        for l in self.locations:
+            off = add(pos, self.pos)
+            off = add(off, l)
+            pygame.draw.circle(screen, (0,0,0), off, 2)
+
+    def draw_grid(self, screen, pos):
+        off = (-self.gsize/2, -self.gsize/2)
+        pos = add(self.pos, pos)
+        for x in range(*self.range[0]):
+            x = x-.5
+            start = add(pos, (self.gsize*x, -self.gsize*3.5))
+            end =   add(pos, (self.gsize*x, self.gsize*3.5))
+            pygame.draw.line(screen, (0,0,0), start, end, 2)
+        for x in range(*self.range[1]):
+            x = x-.5
+            start = (pos[0]-self.gsize*3.5, pos[1]+self.gsize*x)
+            end = (pos[0]+self.gsize*3.5, pos[1]+self.gsize*x)
+            pygame.draw.line(screen, (0,0,0), start, end, 2)
+
 
 
 class Board(Movable):
@@ -226,5 +252,8 @@ class Board(Movable):
                 t.pos = (mpos[0] + self.offsets[t][0], mpos[1]+ self.offsets[t][1])
 
            
+    def draw(self, screen):
+        for g in self.grids:
+            g.draw(screen, self.pos)
 
 
