@@ -38,8 +38,9 @@ class App(game.handler.Handler):
             self.things.append(temp)
 
 
-        temp = game.object.Rollable(self, self.center)
-        self.things.append(temp)
+        self.board = thing.PlayerBoard(self, self.center)
+        self.things.append(self.board)
+
 
     def update(self):
         self.trash.stuff = []

@@ -56,7 +56,7 @@ class Part(gobj.Rollable):
             , 4: (0,0,0)        #weapon
             , 5: (255,255,0)    #shield
             }
-    valmap = {0:0, 1:4, 2:1}
+    valmap = {0:1, 1:4, 2:1}
 
     size = 20
     grid = size*2+2
@@ -64,7 +64,6 @@ class Part(gobj.Rollable):
     def __init__(self, handler, pos = None, fixed=False, t = 0, q = 2):
         gobj.Rollable.__init__(self, handler, pos, fixed)
         self.type = t
-
 
     def snap(self):
         x = snap(self.pos[0], self.grid)
@@ -128,13 +127,17 @@ class Cup(gobj.Rollable):
             off = [off[0]*t.grid + self.size+t.size*2, off[1]*t.grid - self.size+t.size]
             t.pos = (self.pos[0]+off[0], self.pos[1]+off[1])
             t.roll()
+
         self.handler.things.extend(self.stuff)
         self.stuff = []
 
     def update(self):
         gobj.Rollable.update(self)
         for t in self.handler.things:
-             if not t.moving and self.get_hit(t.pos):
+            if t.pos == None: 
+                import pdb; pdb.set_trace()
+ 
+            if not t.moving and self.get_hit(t.pos):
                 if self.add(t):
                     self.handler.things.remove(t)
 
@@ -155,11 +158,28 @@ class Cup(gobj.Rollable):
             off = [off[0] * grid - self.size+grid/2+6, off[1] * grid -self.size+grid/2]
             pos = [self.pos[0] + off[0], self.pos[1]+off[1]]
             t.draw_mini(screen, pos, size)
- 
 
 
+class PlayerBoard(gobj.Board):
+    
+    def __init__(self, handler, pos=None, fixed=False):
+        gobj.Board.__init__(self, handler, pos, fixed)
+        tg = gobj.Grid(self.pos)
+        tg.make_grid(-3, 3, -3, 3, Part.size*2)
+        tg.kinds.append(Part)
+        self.grids.append(tg)
+        self.size = Part.size*7
+        self.gsize = Part.size*2
 
-
+    def draw(self, screen):
+        for x in range(-3,4):
+            x = x
+            start = (self.pos[0]+self.gsize*x, self.pos[1]-self.gsize*3)
+            end = (self.pos[0]+self.gsize*x, self.pos[1]+self.gsize*4)
+            pygame.draw.line(screen, (0,0,0), start, end, 2)
+            start = (self.pos[0]-self.gsize*3, self.pos[1]+self.gsize*x)
+            end = (self.pos[0]+self.gsize*4, self.pos[1]+self.gsize*x)
+            pygame.draw.line(screen, (0,0,0), start, end, 2)
 
 
 
