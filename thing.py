@@ -157,7 +157,7 @@ class PlayerBoard(gobj.Board):
         tg = gobj.Grid((0,32))
         tg.make_grid(-3, 3, -3, 3, self.gsize)
         tg.kinds.append(Part)
-        self.grids.append(tg)
+        self.add_grid(tg)
 
         #TODO: Lock coupling is happening again...
 
@@ -167,7 +167,7 @@ class PlayerBoard(gobj.Board):
         tg.locations = [(20*x, 0) for x in range(-5,6)]
         tg.kinds.append(Token)
         tg.border_box(10)
-        self.grids.append(tg)
+        self.add_grid(tg)
 
 
     def draw(self, screen):

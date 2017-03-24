@@ -171,7 +171,6 @@ class Grid():
                 return False
         return True
 
-
     def make_grid(self, xmin, xmax, ymin, ymax, size):
         """
         Makes a plain old square grid
@@ -243,6 +242,7 @@ class Board(Movable):
         self.grids = []
         self.things = []        
         self.offsets = {}
+        self.kinds = []
 
     def left_click(self, event):
         result = Movable.left_click(self,event)
@@ -252,6 +252,10 @@ class Board(Movable):
             self.offsets[t] = t.offset
         return result
 
+    def add_grid(self, grid):
+        self.grids.append(grid)
+        self.kinds.extend(grid.kinds)
+
 
     def update(self):
         """
@@ -260,15 +264,16 @@ class Board(Movable):
         Movable.update(self)
         if not self.moving:
             self.offsets.clear()
-            for t in self.handler.things:
+            for t in [x for x in self.handler.things if x.__class__ in self.kinds]:
                 if not t.moving:
                     caught = False
                     if self.get_hit(t.pos):
                         for g in self.grids:
                             if g.add(t, self.pos):
-                                if not t in self.things:
-                                    self.things.append(t)
                                 caught = True
+                        if not t in self.things:
+                            self.things.append(t)
+                            caught=True
                     if not caught and t in self.things:
                         self.things.remove(t)
         if self.moving:
