@@ -153,6 +153,24 @@ class Grid():
         else:
             self.pos = (0,0)
         self.range = r
+        self.box = ((0,0),(0,0))
+
+    def border_box(self, margin):
+        """
+        set box to margin around locs
+        """
+        x = [l[0] for l in self.locations]
+        y = [l[1] for l in self.locations]
+        self.box = ((min(x)-margin,max(x)+margin), (min(y)-margin, max(y)+margin))
+
+    def get_hit(self, pos, loc):
+        pos = add(pos,self.pos)
+        for i in range(len(loc)):
+            rel = loc[i]-pos[i]
+            if rel < self.box[i][0] or rel > self.box[i][1]:
+                return False
+        return True
+
 
     def make_grid(self, xmin, xmax, ymin, ymax, size):
         """
@@ -164,12 +182,12 @@ class Grid():
         self.gsize = size
         self.range = ((xmin, xmax+2),(ymin,ymax+2))
         self.draw = self.draw_grid
-
-    #TODO make grids have their own hitbox
+        self.border_box(self.gsize/2)
 
     def add(self, thing, pos):
         if not thing.__class__ in self.kinds: return False
         if thing.fixed: return False
+        if not self.get_hit(thing.pos, pos): return False
         pos = add(self.pos, pos)
         #TODO: remove function and board space exclusion
         best = None
@@ -185,11 +203,18 @@ class Grid():
             return True
         return False
 
+    def draw_box(self, screen, pos):
+        pos = add(pos, self.pos)
+        ul = (pos[0]+self.box[0][0], pos[1] + self.box[1][0])
+        size = (self.box[0][1]-self.box[0][0], self.box[1][1]-self.box[1][0])
+        pygame.draw.rect(screen, (0,0,0), pygame.Rect(ul,size) ,2) 
+
     def draw(self, screen, pos):
         for l in self.locations:
             off = add(pos, self.pos)
             off = add(off, l)
             pygame.draw.circle(screen, (0,0,0), off, 2)
+        self.draw_box(screen,pos)
 
     def draw_grid(self, screen, pos):
         off = (-self.gsize/2, -self.gsize/2)

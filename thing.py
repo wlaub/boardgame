@@ -166,6 +166,7 @@ class PlayerBoard(gobj.Board):
         tg = gobj.Grid((0, -int(self.size)+20))
         tg.locations = [(20*x, 0) for x in range(-5,6)]
         tg.kinds.append(Token)
+        tg.border_box(10)
         self.grids.append(tg)
 
 
