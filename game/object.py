@@ -251,17 +251,13 @@ class Board(Movable):
         Movable.__init__(self, handler, pos, fixed)
         self.grids = []
         self.things = []        
-        self.offsets = {}
         self.kinds = []
 
     def left_click(self, event):
         result = Movable.left_click(self,event)
         for t in self.things:
             if t.fixed: break
-            t.offset = (t.pos[0] - event.pos[0], t.pos[1] - event.pos[1])
-            self.offsets[t] = t.offset
-        for g in self.grids:
-           if g.get_hit(self.pos, event.pos): print('boop') 
+            t.start_moving(event)
         return result
 
     def add_grid(self, grid):
@@ -275,7 +271,6 @@ class Board(Movable):
         """
         Movable.update(self)
         if not self.moving:
-            self.offsets.clear()
             for t in [x for x in self.handler.things if x.__class__ in self.kinds]:
                 if not t.moving:
                     caught = False
@@ -287,12 +282,6 @@ class Board(Movable):
                         caught=True
                     if not caught and t in self.things:
                         self.things.remove(t)
-
-        if self.moving:
-            mpos = pygame.mouse.get_pos()
-            for t in self.offsets.keys():
-                t.pos = (mpos[0] + self.offsets[t][0], mpos[1]+ self.offsets[t][1])
-
            
     def draw(self, screen):
         for g in self.grids:
