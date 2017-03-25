@@ -170,15 +170,15 @@ class Grid():
         """
         x = [l[0] for l in self.locations]
         y = [l[1] for l in self.locations]
-        self.box = ((min(x)-margin,max(x)+margin), (min(y)-margin, max(y)+margin))
+        ul = (min(x) - margin, min(y) - margin)
+        size = (max(x) - min(x) + margin*2, max(y)-min(y)+margin*2)
+        self.box = pygame.Rect(ul,size)
 
     def get_hit(self, pos, loc):
         pos = add(pos,self.pos)
-        for i in range(len(loc)):
-            rel = loc[i]-pos[i]
-            if rel < self.box[i][0] or rel > self.box[i][1]:
-                return False
-        return True
+        if self.box.move(pos).collidepoint(loc):
+            return True
+        return False
 
     def make_grid(self, xmin, xmax, ymin, ymax, size):
         """
@@ -189,13 +189,13 @@ class Grid():
                 self.locations.append((x*size+1, y*size+1))
         self.gsize = size
         self.range = ((xmin, xmax+2),(ymin,ymax+2))
-        self.draw = self.draw_grid
+#        self.draw = self.draw_grid
         self.border_box(self.gsize/2)
 
     def add(self, thing, pos):
         if not thing.__class__ in self.kinds: return False
         if thing.fixed: return False
-        if not self.get_hit(thing.pos, pos): return False
+        if not self.get_hit(pos, thing.pos): return False
         pos = add(self.pos, pos)
         #TODO: remove function and board space exclusion
         best = None
@@ -213,9 +213,7 @@ class Grid():
 
     def draw_box(self, screen, pos):
         pos = add(pos, self.pos)
-        ul = (pos[0]+self.box[0][0], pos[1] + self.box[1][0])
-        size = (self.box[0][1]-self.box[0][0], self.box[1][1]-self.box[1][0])
-        pygame.draw.rect(screen, (0,0,0), pygame.Rect(ul,size) ,2) 
+        pygame.draw.rect(screen, (0,0,0), self.box.move(pos) ,2) 
 
     def draw(self, screen, pos):
         for l in self.locations:
@@ -259,6 +257,8 @@ class Board(Movable):
             if t.fixed: break
             t.offset = (t.pos[0] - event.pos[0], t.pos[1] - event.pos[1])
             self.offsets[t] = t.offset
+        for g in self.grids:
+           if g.get_hit(self.pos, event.pos): print('boop') 
         return result
 
     def add_grid(self, grid):
