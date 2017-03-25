@@ -63,7 +63,7 @@ class Movable():
     def copy(self):
         self.set_clicks()
 
-    def left_click(self, event):
+    def start_moving(self, event):
         if self.fixed:
             temp = copy.copy(self)
             temp.copy()
@@ -71,7 +71,10 @@ class Movable():
             self.fixed = False
         self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
         self.moving = True
-        self.changed = time.time()
+ 
+    def left_click(self, event):
+        self.start_moving(event)
+        self.change = time.time()
         return True
 
     def middle_click(self, event):
@@ -189,7 +192,7 @@ class Grid():
                 self.locations.append((x*size+1, y*size+1))
         self.gsize = size
         self.range = ((xmin, xmax+2),(ymin,ymax+2))
-#        self.draw = self.draw_grid
+        self.draw = self.draw_grid
         self.border_box(self.gsize/2)
 
     def add(self, thing, pos):
