@@ -40,6 +40,10 @@ class Movable():
             self.pos = (0,0)
         else:
             self.pos = pos
+        self.set_clicks()
+
+    def set_clicks(self):
+        self.clicks = [self.left_click, self.middle_click, self.right_click]
 
     def sort(self):
         return (self.layer, self.changed)
@@ -56,9 +60,13 @@ class Movable():
                 return False
         return True
 
+    def copy(self):
+        self.set_clicks()
+
     def left_click(self, event):
         if self.fixed:
             temp = copy.copy(self)
+            temp.copy()
             self.handler.things.append(temp)
             self.fixed = False
         self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
@@ -77,7 +85,7 @@ class Movable():
     def event(self, event):
         if event.type == MOUSEBUTTONDOWN:
             if self.get_move_hit(event.pos):
-                if self.clicks[event.button-1](self, event):
+                if self.clicks[event.button-1](event):
                     return True
         elif event.type == MOUSEBUTTONUP and event.button == 1:
             self.moving = False
