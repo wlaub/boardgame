@@ -74,7 +74,7 @@ class Movable():
  
     def left_click(self, event):
         self.start_moving(event)
-        self.change = time.time()
+        self.changed = time.time()
         return True
 
     def middle_click(self, event):
@@ -161,6 +161,7 @@ class Grid():
         self.kinds = []
         self.locations = []
         self.filled = []
+        self.exc = True
         if pos != None:
             self.pos = pos
         else:
@@ -196,28 +197,31 @@ class Grid():
         self.draw = self.draw_grid
         self.border_box(self.gsize/2)
 
-    def find(self, thing, pos):
+    def find(self, thing, pos, exc = False):
         pos = add(self.pos, pos)
-        #TODO: remove function and board space exclusion
         best = None
         lbest = None
         bdist = self.range
-        for l in self.locations:
+        search = self.locations
+        if exc:
+            search = [x for x in self.locations if not x in self.filled]
+        for l in search:
             relpos = add(l, pos)
             tdist = dist(thing.pos, relpos)
             if tdist < bdist:
                 best = relpos
                 bdist = tdist
                 lbest = l
-        return best 
+        return best, lbest
 
     def add(self, thing, pos):
         if not thing.__class__ in self.kinds: return False
         if thing.fixed: return False
         if not self.get_hit(pos, thing.pos): return False
-        best, lbset = self.find(thing, pos)
+        best, lbest = self.find(thing, pos, self.exc)
         if best != None:
             thing.pos = tuple(best)
+            self.filled.append(lbest)
             return True
         return False
 
@@ -278,6 +282,8 @@ class Board(Movable):
         """
         Movable.update(self)
         if not self.moving:
+            for g in self.grids:
+                g.filled = []
             for t in [x for x in self.handler.things if x.__class__ in self.kinds]:
                 if not t.moving:
                     caught = False
