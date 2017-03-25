@@ -160,6 +160,7 @@ class Grid():
     def __init__(self, pos = None, r = 9999999):
         self.kinds = []
         self.locations = []
+        self.filled = []
         if pos != None:
             self.pos = pos
         else:
@@ -195,13 +196,11 @@ class Grid():
         self.draw = self.draw_grid
         self.border_box(self.gsize/2)
 
-    def add(self, thing, pos):
-        if not thing.__class__ in self.kinds: return False
-        if thing.fixed: return False
-        if not self.get_hit(pos, thing.pos): return False
+    def find(self, thing, pos):
         pos = add(self.pos, pos)
         #TODO: remove function and board space exclusion
         best = None
+        lbest = None
         bdist = self.range
         for l in self.locations:
             relpos = add(l, pos)
@@ -209,6 +208,14 @@ class Grid():
             if tdist < bdist:
                 best = relpos
                 bdist = tdist
+                lbest = l
+        return best 
+
+    def add(self, thing, pos):
+        if not thing.__class__ in self.kinds: return False
+        if thing.fixed: return False
+        if not self.get_hit(pos, thing.pos): return False
+        best, lbset = self.find(thing, pos)
         if best != None:
             thing.pos = tuple(best)
             return True
