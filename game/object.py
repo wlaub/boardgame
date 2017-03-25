@@ -36,11 +36,15 @@ class Movable():
         self.handler = handler
         self.moving = False
         self.fixed = fixed
+        self.make_box()
         if pos == None:
             self.pos = (0,0)
         else:
             self.pos = pos
         self.set_clicks()
+
+    def make_box(self):
+        self.box = pygame.Rect(-self.size, -self.size, self.size*2, self.size*2)
 
     def set_clicks(self):
         self.clicks = [self.left_click, self.middle_click, self.right_click]
@@ -49,12 +53,14 @@ class Movable():
         return (self.layer, self.changed)
 
     def get_move_hit(self, loc):
+        return self.box.move(self.pos).collidepoint(loc)
         for i in range(len(loc)):
             if abs(self.pos[i] - loc[i]) > self.size:
                 return False
         return True
 
     def get_hit(self, loc):
+        return self.box.move(self.pos).collidepoint(loc)
         for i in range(len(loc)):
             if abs(self.pos[i] - loc[i]) > self.size:
                 return False
@@ -101,9 +107,7 @@ class Movable():
             self.pos = (mpos[0] + self.offset[0], mpos[1]+ self.offset[1])
 
     def draw(self):
-        pygame.draw.rect(screen, (0,0,0)
-            , (self.pos[0]-self.size, self.pos[1] - self.size, self.size*2, self.size*2), 1
-            )
+        pygame.draw.rect(screen, (0,0,0), self.box.move(self.pos) )
  
 
 
@@ -142,9 +146,7 @@ class Rollable(Movable):
         return True
 
     def draw(self, screen):
-        pygame.draw.rect(screen, (0,0,0)
-            , (self.pos[0]-self.size, self.pos[1] - self.size, self.size*2, self.size*2), 1
-            )
+        pygame.draw.rect(screen, (0,0,0), self.box.move(self.pos) )
         for x,y in circle(self.size/2., self.val+1):
             pygame.draw.circle(screen, (0,0,0)
             , (self.pos[0] - int(y), self.pos[1] + int(x))

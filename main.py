@@ -15,7 +15,7 @@ class App(game.handler.Handler):
 
         start = [0,0,0,1,2,4,5]
 
-        self.cup = thing.Cup(self, self.center)
+        self.cup = thing.Cup(self, (100,self.center[1]))
         self.things.append(self.cup)
 
         self.trash = thing.Cup(self, (100,150))

@@ -93,11 +93,11 @@ class Part(gobj.Rollable):
 class Cup(gobj.Rollable):
    
     layer = 1
+    size = 60
  
     def __init__(self, handler, pos = None):
         gobj.Rollable.__init__(self, handler, pos, val=0)
         self.stuff = []
-        self.size = 60
         self.color = (192,192,192)
         self.kinds = [Part]
 
@@ -159,18 +159,40 @@ class PlayerBoard(gobj.Board):
         tg.kinds.append(Part)
         self.add_grid(tg)
 
-        self.size = self.gsize*3.5+100
+        self.size = self.gsize*4.5
         
-        tg = gobj.Grid((0, -int(self.size)+80))
-        tg.locations = [(20*x, 0) for x in range(-5,6)]
+        tg = gobj.Grid((0, -int(self.gsize*3.5)))
+        tg.locations = [(int(Token.size*x*3), -int(Token.size*1.25)) for x in range(-2,3)]
+        tg.locations.extend([(int(Token.size*x*3), int(Token.size*1.25)) for x in range(-2,3)])
         tg.kinds.append(Token)
-        tg.border_box(10)
+        tg.border_box(int(Token.size*1.5))
+        tg.pos = (int(self.gsize*3.5-tg.box.width/2), tg.pos[1])
         self.add_grid(tg)
+
+
+        tg = gobj.Grid((0, -int(self.gsize*3.5)))
+        tg.locations = [(int(Token.size*x*3), -int(Token.size*1.5)) for x in range(-3,4)]
+        tg.kinds.append(Token)
+        tg.border_box(int(Token.size*1.5))
+        tg.pos = (int(-self.gsize*3.5+tg.box.width/2), tg.pos[1])
+        self.add_grid(tg)
+
+
+        tg = gobj.Grid((0, -int(self.gsize*3.5)))
+        tg.locations = [(int(Token.size*x*3), int(Token.size*1.5)) for x in range(-3,4)]
+        tg.kinds.append(Token)
+        tg.border_box(int(Token.size*1.5))
+        tg.pos = (int(-self.gsize*3.5+tg.box.width/2), tg.pos[1])
+        self.add_grid(tg)
+
+        self.make_box()
+        heap = Part.size*6
+        self.box = pygame.Rect((-self.gsize*4-heap, -self.gsize*4.5), (self.gsize*8+heap, self.gsize*9))
+
 
 
     def draw(self, screen):
         gobj.Board.draw(self, screen)
-        rect = (self.pos[0]-self.size, self.pos[1]-self.size, self.size*2, self.size*2)
-        pygame.draw.rect(screen, (0,0,0), rect, 2)
+        pygame.draw.rect(screen, (0,0,0), self.box.move(self.pos), 2)
 
 
