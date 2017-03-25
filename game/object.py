@@ -32,7 +32,7 @@ class Movable():
     layer = 0
 
     def __init__(self, handler, pos, fixed=False):
-        self.changed = 0
+        self.changed = time.time()
         self.handler = handler
         self.moving = False
         self.fixed = fixed
@@ -40,7 +40,6 @@ class Movable():
             self.pos = (0,0)
         else:
             self.pos = pos
-        self.clicks = [self.left_click, self.middle_click, self.right_click]
 
     def sort(self):
         return (self.layer, self.changed)
@@ -73,10 +72,12 @@ class Movable():
     def right_click(self, event):
         return False
 
+    clicks = [left_click, middle_click, right_click]
+
     def event(self, event):
         if event.type == MOUSEBUTTONDOWN:
             if self.get_move_hit(event.pos):
-                if self.clicks[event.button-1](event):
+                if self.clicks[event.button-1](self, event):
                     return True
         elif event.type == MOUSEBUTTONUP and event.button == 1:
             self.moving = False
@@ -269,13 +270,13 @@ class Board(Movable):
                     caught = False
                     if self.get_hit(t.pos):
                         for g in self.grids:
-                            if g.add(t, self.pos):
-                                caught = True
+                            g.add(t, self.pos)
                         if not t in self.things:
                             self.things.append(t)
-                            caught=True
+                        caught=True
                     if not caught and t in self.things:
                         self.things.remove(t)
+
         if self.moving:
             mpos = pygame.mouse.get_pos()
             for t in self.offsets.keys():
