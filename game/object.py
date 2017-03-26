@@ -75,7 +75,7 @@ class Movable():
             temp.copy()
             self.handler.things.append(temp)
             self.fixed = False
-        self.offset = (self.pos[0] - event.pos[0], self.pos[1] - event.pos[1])
+        self.offset = (self.pos[0] - self.mpos[0], self.pos[1] - self.mpos[1])
         self.moving = True
  
     def left_click(self, event):
@@ -92,8 +92,9 @@ class Movable():
     clicks = [left_click, middle_click, right_click]
 
     def event(self, event):
-        if event.type == MOUSEBUTTONDOWN:
-            if self.get_move_hit(event.pos):
+        self.mpos = self.handler.get_mouse()
+        if event.type == MOUSEBUTTONDOWN and event.button < len(self.clicks):
+            if self.get_move_hit(self.mpos):
                 if self.clicks[event.button-1](event):
                     return True
         elif event.type == MOUSEBUTTONUP and event.button == 1:
@@ -103,8 +104,7 @@ class Movable():
 
     def update(self):
         if self.moving:
-            mpos = pygame.mouse.get_pos()
-            self.pos = (mpos[0] + self.offset[0], mpos[1]+ self.offset[1])
+            self.pos = (self.mpos[0] + self.offset[0], self.mpos[1]+ self.offset[1])
 
     def draw(self):
         pygame.draw.rect(screen, (0,0,0), self.box.move(self.pos) )

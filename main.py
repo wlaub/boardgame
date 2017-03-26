@@ -10,12 +10,12 @@ import game.handler
 class App(game.handler.Handler):
 
     def __init__(self):
-        game.handler.Handler.__init__(self, (1000,600))
+        game.handler.Handler.__init__(self, (3000,3000))
 
 
         start = [0,0,0,1,2,4,5]
 
-        self.cup = thing.Cup(self, (100,self.center[1]))
+        self.cup = thing.Cup(self, (100,self.wsize[1]/2))
         self.things.append(self.cup)
 
         self.trash = thing.Cup(self, (100,150))
@@ -24,7 +24,7 @@ class App(game.handler.Handler):
         self.things.append(self.trash)
 
         for i, t in enumerate(start):
-            temp = thing.Part(self, (self.center[0] + i*40, self.center[1]), False, t)
+            temp = thing.Part(self, (self.wsize[0]/2 + i*40, self.wsize[1]/2), False, t)
             self.cup.add(temp)
 
         for i in range(len(thing.Token.colors)):
@@ -36,11 +36,12 @@ class App(game.handler.Handler):
             self.things.append(temp)
 
 
-        self.board = thing.PlayerBoard(self, self.center)
+        self.board = thing.PlayerBoard(self, (self.wsize[0]/2, self.wsize[1]/2))
         self.things.append(self.board)
 
 
     def update(self):
+        game.handler.Handler.update(self)
         self.trash.stuff = []
 
     def draw_pre(self):
