@@ -9,6 +9,9 @@ class Handler():
     Should be subclassed for the main application
     """
 
+    usemini = True
+    msize = 200
+
     def __init__(self, size):
         pygame.init()
         pygame.font.init()
@@ -34,8 +37,9 @@ class Handler():
         self.panning = False
         self.poff = (0,0)
 
-        msize = 200
-        self.minimap = ui.Minimap(self, (self.wsize[0]-msize, self.wsize[1]-msize), (msize, msize) )
+        self.minimap = ui.Minimap(self
+                , (self.wsize[0]-self.msize, self.wsize[1]-self.msize)
+                , (self.msize, self.msize) )
 
     def render(self):
         """
@@ -45,30 +49,17 @@ class Handler():
             , max(0,int(self.pos[1]-self.wsize[1]/2.))
             )
 
-
         self.drawscreen.fill(self.bgcolor)
  
         self.drawscreen.blit(self.screen, (0,0), area = pygame.Rect(ul,self.wsize))
-        self.minimap.draw(self.screen, self.drawscreen)
-
-    """
-    def minimap(self, area):
-        ratx = area[2]/float(self.size[0])
-        raty = area[3]/float(self.size[1])
-        pos = ((self.pos[0]-self.wsize[0]/2)*ratx, (self.pos[1]-self.wsize[1]/2)*raty)
-        mini = pygame.transform.smoothscale(self.screen, (area[2], area[3]))
-
-        self.drawscreen.blit(mini, (area[0], area[1]))
-        pygame.draw.rect(self.drawscreen, (0,0,0), area, 1)
-        pygame.draw.rect(self.drawscreen, (0,0,0)
-                        , (area[0]+pos[0], area[1]+pos[1], self.wsize[0]*ratx, self.wsize[1]*raty), 1)
-    """
+        if self.usemini:
+            self.minimap.draw(self.screen, self.drawscreen)
 
     def update_areas(self):
         ul= ( min(0, self.pos[0]-self.wsize[0]/2.)
             , min(0, self.pos[1]-self.wsize[1]/2.)
             )
-        self.draw_off = (self.pos[0] + ul[0], self.pos[1] + ul[1])
+        self.pos = (self.pos[0] + ul[0], self.pos[1] + ul[1])
 
     def get_mouse(self):
         return self.relmpos
@@ -118,6 +109,8 @@ class Handler():
                         caught=True
                         break
                 if not caught:
+                    if self.usemini:
+                        self.minimap.event(event)
                     self.event(event)
 
             for t in self.things:
@@ -133,6 +126,8 @@ class Handler():
 
             for t in self.things:
                 t.draw(self.screen)
+            if self.usemini:
+                self.minimap.update()
 
             self.draw_post()
 
