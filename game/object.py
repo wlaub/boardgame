@@ -1,6 +1,8 @@
 import pygame
 from pygame.locals import *
 
+import ui
+
 import math, random
 import copy
 import handler
@@ -22,7 +24,7 @@ def add(pos1, pos2):
     return [(pos1[x] + pos2[x]) for x in range(len(pos1))]
 
 
-class Movable():
+class Movable(ui.Clickable):
     """
     Movable object class. For things you can click and drag
     A fixed object makes an unfixed copy of itself when moved 
@@ -32,32 +34,14 @@ class Movable():
     layer = 0
 
     def __init__(self, handler, pos, fixed=False):
+        ui.Clickable.__init__(self, handler, pos)
         self.changed = time.time()
-        self.handler = handler
         self.moving = False
         self.fixed = fixed
-        self.make_box()
-        if pos == None:
-            self.pos = (0,0)
-        else:
-            self.pos = pos
-        self.set_clicks()
-
-    def make_box(self):
-        self.box = pygame.Rect(-self.size, -self.size, self.size*2, self.size*2)
-
-    def set_clicks(self):
-        self.clicks = [self.left_click, self.middle_click, self.right_click]
+        self.locked = False
 
     def sort(self):
         return (self.layer, self.changed)
-
-    def get_move_hit(self, loc):
-        return self.box.move(self.pos).collidepoint(loc)
-        for i in range(len(loc)):
-            if abs(self.pos[i] - loc[i]) > self.size:
-                return False
-        return True
 
     def get_hit(self, loc):
         return self.box.move(self.pos).collidepoint(loc)
@@ -83,21 +67,9 @@ class Movable():
         self.changed = time.time()
         return True
 
-    def middle_click(self, event):
-        return False
- 
-    def right_click(self, event):
-        return False
-
-    clicks = [left_click, middle_click, right_click]
-
     def event(self, event):
-        self.mpos = self.handler.get_mouse()
-        if event.type == MOUSEBUTTONDOWN and event.button < len(self.clicks):
-            if self.get_move_hit(self.mpos):
-                if self.clicks[event.button-1](event):
-                    return True
-        elif event.type == MOUSEBUTTONUP and event.button == 1:
+        if ui.Clickable.event(self, event): return True
+        if event.type == MOUSEBUTTONUP and event.button == 1:
             self.moving = False
 
         return False

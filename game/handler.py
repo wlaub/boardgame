@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import ui
 import sys, time, math
 
 class Handler():
@@ -33,6 +34,9 @@ class Handler():
         self.panning = False
         self.poff = (0,0)
 
+        msize = 200
+        self.minimap = ui.Minimap(self, (self.wsize[0]-msize, self.wsize[1]-msize), (msize, msize) )
+
     def render(self):
         """
         Render the display area to the display screen
@@ -45,7 +49,20 @@ class Handler():
         self.drawscreen.fill(self.bgcolor)
  
         self.drawscreen.blit(self.screen, (0,0), area = pygame.Rect(ul,self.wsize))
+        self.minimap.draw(self.screen, self.drawscreen)
 
+    """
+    def minimap(self, area):
+        ratx = area[2]/float(self.size[0])
+        raty = area[3]/float(self.size[1])
+        pos = ((self.pos[0]-self.wsize[0]/2)*ratx, (self.pos[1]-self.wsize[1]/2)*raty)
+        mini = pygame.transform.smoothscale(self.screen, (area[2], area[3]))
+
+        self.drawscreen.blit(mini, (area[0], area[1]))
+        pygame.draw.rect(self.drawscreen, (0,0,0), area, 1)
+        pygame.draw.rect(self.drawscreen, (0,0,0)
+                        , (area[0]+pos[0], area[1]+pos[1], self.wsize[0]*ratx, self.wsize[1]*raty), 1)
+    """
 
     def update_areas(self):
         ul= ( min(0, self.pos[0]-self.wsize[0]/2.)
