@@ -21,12 +21,14 @@ class Handler():
         self.center = (size[0]/2, size[1]/2)
 
         self.wsize = (1280,720)
+        self.update_locs()
         self.screen = pygame.Surface(self.size)
 
         self.drawscreen = pygame.display.set_mode(self.wsize)
         self.pos = (640,360)
 
         self.things = []
+        self.modals = []
 
         self.done = False
 
@@ -52,8 +54,18 @@ class Handler():
         self.drawscreen.fill(self.bgcolor)
  
         self.drawscreen.blit(self.screen, (0,0), area = pygame.Rect(ul,self.wsize))
+
+        for t in self.things:
+            t.draw_ui(self.drawscreen)
+
         if self.usemini:
             self.minimap.draw(self.screen, self.drawscreen)
+
+    def update_locs(self):
+        """
+        For updating relative locations like wcenter
+        """
+        self.wcenter = (self.wsize[0]/2, self.wsize[1]/2)
 
     def update_areas(self):
         ul= ( min(0, self.pos[0]-self.wsize[0]/2.)
@@ -78,6 +90,7 @@ class Handler():
             exit()
         elif event.type == pygame.VIDEORESIZE:
             self.wsize = event.size
+            self.update_locs()
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 3:
                 self.panning =True
@@ -91,7 +104,15 @@ class Handler():
     def draw_post(self):
         pass
 
+    def add_modal(self, m):
+        self.things.append(m)
+        self.modals.append(m)
+
     def update(self):
+        for m in self.modals:
+            if m.closed:
+                self.things.remove(m)
+                self.modals.remove(m)
         if self.panning:
             self.pan((self.mpos[0] - self.poff[0], self.mpos[1]-self.poff[1]))
             self.poff = self.mpos

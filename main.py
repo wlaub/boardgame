@@ -6,6 +6,7 @@ import pickle
 import thing
 import game.object
 import game.handler
+import game.ui
 
 class App(game.handler.Handler):
 
@@ -38,6 +39,8 @@ class App(game.handler.Handler):
 
         self.board = thing.PlayerBoard(self, (self.wsize[0]/2, self.wsize[1]/2))
         self.things.append(self.board)
+
+        nm = game.ui.Modal(self, self.wcenter)
 
 
     def update(self):
